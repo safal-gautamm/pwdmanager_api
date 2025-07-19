@@ -57,9 +57,9 @@ build CMakeFiles/myapi.dir/main.cc.o: CXX_COMPILER__myapi_unscanned_Debug /home/
   OBJECT_DIR = CMakeFiles/myapi.dir
   OBJECT_FILE_DIR = CMakeFiles/myapi.dir
 
-build CMakeFiles/myapi.dir/controllers/Greet.cc.o: CXX_COMPILER__myapi_unscanned_Debug /home/safal_gtm/Desktop/Project/myapi/controllers/Greet.cc || cmake_object_order_depends_target_myapi
+build CMakeFiles/myapi.dir/controllers/GreetController.cc.o: CXX_COMPILER__myapi_unscanned_Debug /home/safal_gtm/Desktop/Project/myapi/controllers/GreetController.cc || cmake_object_order_depends_target_myapi
   CONFIG = Debug
-  DEP_FILE = CMakeFiles/myapi.dir/controllers/Greet.cc.o.d
+  DEP_FILE = CMakeFiles/myapi.dir/controllers/GreetController.cc.o.d
   FLAGS = -g -std=c++17
   INCLUDES = -I/home/safal_gtm/Desktop/Project/myapi -I/home/safal_gtm/Desktop/Project/myapi/models
   OBJECT_DIR = CMakeFiles/myapi.dir
@@ -73,7 +73,7 @@ build CMakeFiles/myapi.dir/controllers/Greet.cc.o: CXX_COMPILER__myapi_unscanned
 #############################################
 # Link the executable myapi
 
-build myapi: CXX_EXECUTABLE_LINKER__myapi_Debug CMakeFiles/myapi.dir/main.cc.o CMakeFiles/myapi.dir/controllers/Greet.cc.o | /usr/local/lib/libdrogon.a /usr/local/lib/libtrantor.a /usr/lib/libssl.so /usr/lib/libcrypto.so /usr/lib/libcares.so /usr/lib/libjsoncpp.so /lib/libuuid.so /usr/lib/libbrotlidec.so /usr/lib/libbrotlienc.so /usr/lib/libbrotlicommon.so /usr/lib/libpq.so /usr/lib/libmysqlclient_r.so /usr/lib/libsqlite3.so /usr/lib/libhiredis.so /usr/lib/libz.so
+build myapi: CXX_EXECUTABLE_LINKER__myapi_Debug CMakeFiles/myapi.dir/main.cc.o CMakeFiles/myapi.dir/controllers/GreetController.cc.o | /usr/local/lib/libdrogon.a /usr/local/lib/libtrantor.a /usr/lib/libssl.so /usr/lib/libcrypto.so /usr/lib/libcares.so /usr/lib/libjsoncpp.so /lib/libuuid.so /usr/lib/libbrotlidec.so /usr/lib/libbrotlienc.so /usr/lib/libbrotlicommon.so /usr/lib/libpq.so /usr/lib/libmysqlclient_r.so /usr/lib/libsqlite3.so /usr/lib/libhiredis.so /usr/lib/libz.so
   CONFIG = Debug
   DEP_FILE = CMakeFiles/myapi.dir/link.d
   FLAGS = -g

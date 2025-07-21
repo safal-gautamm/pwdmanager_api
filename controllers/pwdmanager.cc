@@ -1,21 +1,115 @@
 #include "pwdmanager.h"
 
+// XOR key - keep this secret and consistent!
+const std::string xorKey = "MySecretXORKey";
+
+// Simple XOR encrypt/decrypt function (symmetric)
+std::string xorCrypt(const std::string &input, const std::string &key)
+{
+    std::string output = input;
+    for (size_t i = 0; i < input.size(); ++i)
+    {
+        output[i] = input[i] ^ key[i % key.size()];
+    }
+    return output;
+}
+
+// ✅ Serve home page instructions
+void CreateController::home(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
+{
+    auto resp = HttpResponse::newFileResponse("../index.html");  // ✅ same dir as JSON
+    callback(resp);
+}
+
+// Generate API key from current time as hex string
+std::string CreateController::getAPIKey()
+{
+    time_t now = time(nullptr);
+    std::ostringstream oss;
+    oss << std::hex << std::uppercase << std::setw(8) << std::setfill('0') << now;
+    return oss.str();
+}
+
+// Load JSON data from file, or create empty root if none
+Json::Value CreateController::loadData()
+{
+    Json::Value root;
+    std::ifstream file(dataFile);
+    if (file.good())
+    {
+        file >> root;
+    }
+    file.close();
+
+    if (!root.isObject())
+    {
+        root["users"] = Json::Value(Json::arrayValue);
+    }
+    return root;
+}
+
+// Save JSON data to file (pretty print)
+void CreateController::saveData(const Json::Value &root)
+{
+    std::ofstream file(dataFile);
+    file << root.toStyledString();
+    file.close();
+}
+
+// Validate if name + apikey exist in data
+bool CreateController::validateApiKey(const Json::Value &root, const std::string &name, const std::string &apikey)
+{
+    const Json::Value &users = root["users"];
+    for (const auto &user : users)
+    {
+        if (user["name"].asString() == name && user["apikey"].asString() == apikey)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+// POST /create?name=...
 void CreateController::create(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
+    std::string name = req->getParameter("name");
+    if (name.empty())
+    {
+        Json::Value json;
+        json["error"] = "Missing required parameter: name";
+        auto resp = HttpResponse::newHttpJsonResponse(json);
+        resp->setStatusCode(k400BadRequest);
+        callback(resp);
+        return;
+    }
+
+    Json::Value root = loadData();
+    Json::Value &users = root["users"];
+
+    for (const auto &user : users)
+    {
+        if (user["name"].asString() == name)
+        {
+            Json::Value json;
+            json["error"] = "User already exists";
+            auto resp = HttpResponse::newHttpJsonResponse(json);
+            resp->setStatusCode(k409Conflict);
+            callback(resp);
+            return;
+        }
+    }
+
     std::string apikey = getAPIKey();
 
-    std::string name = req->getParameter("name");
-    if (name.empty()) {
-        // Return 400 Bad Request immediately, no greeting or API key generated
-        Json::Value errorJson;
-        errorJson["error"] = "Missing required parameter: name";
+    Json::Value newUser;
+    newUser["name"] = name;
+    newUser["apikey"] = apikey;
+    newUser["passwords"] = Json::Value(Json::arrayValue);
 
-        auto resp = HttpResponse::newHttpJsonResponse(errorJson);
-        resp->setStatusCode(k400BadRequest);
+    users.append(newUser);
+    saveData(root);
 
-        callback(resp);
-        return;  // stop further processing, acts like exit for this request
-    }
     Json::Value json;
     json["name"] = name;
     json["apikey"] = apikey;
@@ -24,11 +118,186 @@ void CreateController::create(const HttpRequestPtr &req, std::function<void(cons
     callback(resp);
 }
 
-std::string CreateController::getAPIKey()
+// POST /add?apikey=...&site=...&username=...&password=...
+void CreateController::add(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
-    time_t now = time(nullptr);
-    std::ostringstream oss;
-    oss << std::hex << std::uppercase << std::setw(8) << std::setfill('0') << now;
+    std::string apikey = req->getParameter("apikey");
+    std::string site = req->getParameter("site");
+    std::string username = req->getParameter("username");
+    std::string password = req->getParameter("password");
 
-    return oss.str();
+    if (apikey.empty() || site.empty() || username.empty() || password.empty())
+    {
+        Json::Value json;
+        json["error"] = "Missing required parameters";
+        auto resp = HttpResponse::newHttpJsonResponse(json);
+        resp->setStatusCode(k400BadRequest);
+        callback(resp);
+        return;
+    }
+
+    Json::Value root = loadData();
+    Json::Value &users = root["users"];
+
+    bool found = false;
+    for (auto &user : users)
+    {
+        if (user["apikey"].asString() == apikey)
+        {
+            Json::Value &passwords = user["passwords"];
+
+            bool siteExists = false;
+            for (auto &entry : passwords)
+            {
+                if (entry["site"].asString() == site && entry["username"].asString() == username)
+                {
+                    entry["password"] = xorCrypt(password, xorKey);  // update
+                    siteExists = true;
+                    break;
+                }
+            }
+            if (!siteExists)
+            {
+                Json::Value newEntry;
+                newEntry["site"] = site;
+                newEntry["username"] = username;
+                newEntry["password"] = xorCrypt(password, xorKey);
+                passwords.append(newEntry);
+            }
+
+            found = true;
+            break;
+        }
+    }
+
+    if (!found)
+    {
+        Json::Value json;
+        json["error"] = "Invalid API key";
+        auto resp = HttpResponse::newHttpJsonResponse(json);
+        resp->setStatusCode(k403Forbidden);
+        callback(resp);
+        return;
+    }
+
+    saveData(root);
+
+    Json::Value json;
+    json["status"] = "Password added/updated successfully";
+    auto resp = HttpResponse::newHttpJsonResponse(json);
+    callback(resp);
+}
+
+// GET /view?name=...&apikey=...
+void CreateController::view(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
+{
+    std::string name = req->getParameter("name");
+    std::string apikey = req->getParameter("apikey");
+
+    if (name.empty() || apikey.empty())
+    {
+        Json::Value json;
+        json["error"] = "Missing required parameters";
+        auto resp = HttpResponse::newHttpJsonResponse(json);
+        resp->setStatusCode(k400BadRequest);
+        callback(resp);
+        return;
+    }
+
+    Json::Value root = loadData();
+
+    if (!validateApiKey(root, name, apikey))
+    {
+        Json::Value json;
+        json["error"] = "Invalid API key or user";
+        auto resp = HttpResponse::newHttpJsonResponse(json);
+        resp->setStatusCode(k403Forbidden);
+        callback(resp);
+        return;
+    }
+
+    const Json::Value &users = root["users"];
+    for (const auto &user : users)
+    {
+        if (user["name"].asString() == name)
+        {
+            Json::Value decryptedPasswords(Json::arrayValue);
+            for (const auto &entry : user["passwords"])
+            {
+                Json::Value decryptedEntry = entry;
+                decryptedEntry["password"] = xorCrypt(entry["password"].asString(), xorKey);
+                decryptedPasswords.append(decryptedEntry);
+            }
+
+            Json::Value json;
+            json["passwords"] = decryptedPasswords;
+            auto resp = HttpResponse::newHttpJsonResponse(json);
+            callback(resp);
+            return;
+        }
+    }
+
+    Json::Value json;
+    json["error"] = "User not found";
+    auto resp = HttpResponse::newHttpJsonResponse(json);
+    resp->setStatusCode(k404NotFound);
+    callback(resp);
+}
+
+// DELETE /delete?name=...&apikey=...
+void CreateController::deleteSite(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
+{
+    std::string name = req->getParameter("name");
+    std::string apikey = req->getParameter("apikey");
+
+    if (name.empty() || apikey.empty())
+    {
+        Json::Value json;
+        json["error"] = "Missing required parameters";
+        auto resp = HttpResponse::newHttpJsonResponse(json);
+        resp->setStatusCode(k400BadRequest);
+        callback(resp);
+        return;
+    }
+
+    Json::Value root = loadData();
+
+    if (!validateApiKey(root, name, apikey))
+    {
+        Json::Value json;
+        json["error"] = "Invalid API key or user";
+        auto resp = HttpResponse::newHttpJsonResponse(json);
+        resp->setStatusCode(k403Forbidden);
+        callback(resp);
+        return;
+    }
+
+    Json::Value &users = root["users"];
+    bool deleted = false;
+    for (auto &user : users)
+    {
+        if (user["name"].asString() == name)
+        {
+            user["passwords"] = Json::Value(Json::arrayValue);  // wipe all
+            deleted = true;
+            break;
+        }
+    }
+
+    if (!deleted)
+    {
+        Json::Value json;
+        json["error"] = "User not found";
+        auto resp = HttpResponse::newHttpJsonResponse(json);
+        resp->setStatusCode(k404NotFound);
+        callback(resp);
+        return;
+    }
+
+    saveData(root);
+
+    Json::Value json;
+    json["status"] = "All passwords deleted successfully";
+    auto resp = HttpResponse::newHttpJsonResponse(json);
+    callback(resp);
 }

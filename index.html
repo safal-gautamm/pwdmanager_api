@@ -75,9 +75,9 @@
     <div class="section">
       <h2>Update Site</h2>
       <p class="desc">Updates username or password (or both) for an existing site.</p>
-      <pre>PATCH /update?apikey=API_KEY&site=SITE&username=USER&password=PASS</pre>
+      <pre>PUT /update?apikey=API_KEY&site=SITE&username=USER&password=PASS</pre>
       <p class="desc">On Terminal:</p>
-      <pre>curl -X PATCH "http://localhost:5555/update?apikey=ABC123&site=github.com&password=newpass"</pre>
+      <pre>curl -X PUT "http://localhost:5555/update?apikey=ABC123&site=github.com&password=newpass"</pre>
     </div>
 
     <div class="section">

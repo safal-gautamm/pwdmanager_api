@@ -95,7 +95,7 @@ curl -X POST "http://localhost:5555/add?apikey=API_KEY&site=SITE.COM&username=US
 ### Update Site
 
 ```bash
-curl -X PATCH "http://localhost:5555//update?apikey=API_KEY&site=SITE.COM&username=USER&password=PASSWORD"
+curl -X PUT "http://localhost:5555//update?apikey=API_KEY&site=SITE.COM&username=USER&password=PASSWORD"
 ```
 
 ### View all passwords

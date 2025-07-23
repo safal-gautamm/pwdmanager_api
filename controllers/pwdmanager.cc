@@ -189,7 +189,7 @@ void CreateController::add(const HttpRequestPtr &req, std::function<void(const H
     callback(resp);
 }
 
-// PATCH /update?apikey=...&site=...(&username=... or &password=... or both)
+// PUT /update?apikey=...&site=...&username=...&password=...
 void CreateController::update(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
     std::string apikey = req->getParameter("apikey");

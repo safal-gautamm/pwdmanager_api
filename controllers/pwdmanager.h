@@ -14,7 +14,7 @@ public:
     ADD_METHOD_TO(CreateController::home, "/", Get);
     ADD_METHOD_TO(CreateController::create, "/create", Post);
     ADD_METHOD_TO(CreateController::add, "/add", Post);
-    ADD_METHOD_TO(CreateController::update, "/update", Patch);
+    ADD_METHOD_TO(CreateController::update, "/update", Put);
     ADD_METHOD_TO(CreateController::view, "/view", Get);
     ADD_METHOD_TO(CreateController::deleteData, "/delete", Delete);
     METHOD_LIST_END

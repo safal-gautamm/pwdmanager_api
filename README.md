@@ -90,7 +90,12 @@ curl -X POST "http://localhost:5555/create?name=YOUR_NAME"
 ### Add Password
 
 ```bash
-curl -X POST "http://localhost:5555/add?apikey=YOUR_APIKEY&site=facebook.com&username=myuser&password=mypass"
+curl -X POST "http://localhost:5555/add?apikey=API_KEY&site=SITE.COM&username=USER&password=PASSWORD"
+```
+### Update Site
+
+```bash
+curl -X PATCH "http://localhost:5555//update?apikey=API_KEY&site=SITE.COM&username=USER&password=PASSWORD"
 ```
 
 ### View all passwords

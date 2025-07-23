@@ -5,41 +5,108 @@
     <style>
       body {
         font-family: Arial, sans-serif;
-        padding: 2em;
-        background: linear-gradient(rgb(255, 253, 253), rgb(18, 19, 94));
+        padding: 20px;
+        background: #f0f0f0;
       }
       h1 {
-        color: #333;
+        text-align: center;
+        color: #222;
+      }
+      .section {
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 15px;
+      }
+      h2 {
+        color: #444;
+        margin-top: 0;
+      }
+      .desc {
+        font-size: 14px;
+        color: #555;
+        margin-bottom: 5px;
       }
       pre {
         background: #222;
         color: #eee;
-        padding: 1em;
-        border-radius: 5px;
+        padding: 8px;
+        border-radius: 4px;
+        overflow-x: auto;
+      }
+      .reference {
+        text-align: center;
+        margin-top: 30px;
+        font-size: 14px;
+        color: #555;
+      }
+      .reference a {
+        color: #0066cc;
+        text-decoration: none;
+      }
+      .reference a:hover {
+        text-decoration: underline;
       }
     </style>
   </head>
   <body>
-    <h1>Welcome to Password Manager API</h1>
-    <p>Use the following endpoints to manage your passwords:</p>
-
-    <h2>Create Account</h2>
-    <pre>POST /create?name=YOUR_NAME</pre>
-
-    <h2>Add Password</h2>
-    <pre>
-POST /add?apikey=YOUR_APIKEY&site=SITE_NAME&username=USERNAME&password=PASSWORD</pre
-    >
-
-    <h2>View Passwords</h2>
-    <pre>GET /view?name=YOUR_NAME&apikey=YOUR_APIKEY</pre>
-
-    <h2>Delete All Passwords</h2>
-    <pre>DELETE /delete?name=YOUR_NAME&apikey=YOUR_API_KEY</pre>
-
-    <p>
-      Replace <code>YOUR_NAME</code>, <code>YOUR_APIKEY</code>,
-      <code>SITE_NAME</code>, etc., accordingly.
+    <h1> Password Manager API</h1>
+    <p style="text-align: center; max-width: 600px; margin: 0 auto 20px;">
+      Use the following endpoints to manage your accounts and passwords.
     </p>
+
+    <div class="section">
+      <h2>Create Account</h2>
+      <p class="desc">Creates a new user account and returns an API key.</p>
+      <pre>POST /create?name=YOUR_NAME</pre>
+      <p class="desc">On Terminal:</p>
+      <pre>curl -X POST "http://localhost:5555/create?name=John"</pre>
+    </div>
+
+    <div class="section">
+      <h2>Add Password</h2>
+      <p class="desc">Stores a new site password or updates it if already exists.</p>
+      <pre>POST /add?apikey=API_KEY&site=SITE&username=USER&password=PASS</pre>
+      <p class="desc">On Terminal:</p>
+      <pre>curl -X POST "http://localhost:5555/add?apikey=ABC123&site=github.com&username=john&password=12345"</pre>
+    </div>
+
+    <div class="section">
+      <h2>Update Site</h2>
+      <p class="desc">Updates username or password (or both) for an existing site.</p>
+      <pre>PATCH /update?apikey=API_KEY&site=SITE&username=USER&password=PASS</pre>
+      <p class="desc">On Terminal:</p>
+      <pre>curl -X PATCH "http://localhost:5555/update?apikey=ABC123&site=github.com&password=newpass"</pre>
+    </div>
+
+    <div class="section">
+      <h2>View Passwords</h2>
+      <p class="desc">Returns all saved passwords for a user (decrypted).</p>
+      <pre>GET /view?name=NAME&apikey=API_KEY</pre>
+      <p class="desc">On Terminal:</p>
+      <pre>curl -X GET "http://localhost:5555/view?name=John&apikey=ABC123"</pre>
+    </div>
+
+    <div class="section">
+      <h2>Delete All Passwords</h2>
+      <p class="desc">Deletes all stored passwords for a user.</p>
+      <pre>DELETE /delete?name=NAME&apikey=API_KEY</pre>
+      <p class="desc">On Terminal:</p>
+      <pre>curl -X DELETE "http://localhost:5555/delete?name=John&apikey=ABC123"</pre>
+    </div>
+
+    <div class="reference">
+      <p>
+        📌 View full source code here:
+        <a href="https://github.com/safal-gautamm/pwdmanager_api" target="_blank">
+          Password Manager API (GitHub)
+        </a>
+      </p>
+      <p>
+        👨‍💻 Developed by
+        <a href="https://github.com/safal-gautamm" target="_blank">Safal Gautam</a>
+      </p>
+    </div>
   </body>
 </html>

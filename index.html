@@ -1,14 +1,25 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Password Manager API</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 2em; background: #f4f4f4; }
-        h1 { color: #333; }
-        pre { background: #222; color: #eee; padding: 1em; border-radius: 5px; }
+      body {
+        font-family: Arial, sans-serif;
+        padding: 2em;
+        background: linear-gradient(rgb(255, 253, 253), rgb(18, 19, 94));
+      }
+      h1 {
+        color: #333;
+      }
+      pre {
+        background: #222;
+        color: #eee;
+        padding: 1em;
+        border-radius: 5px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Welcome to Password Manager API</h1>
     <p>Use the following endpoints to manage your passwords:</p>
 
@@ -16,7 +27,9 @@
     <pre>POST /create?name=YOUR_NAME</pre>
 
     <h2>Add Password</h2>
-    <pre>POST /add?apikey=YOUR_APIKEY&site=SITE_NAME&username=USERNAME&password=PASSWORD</pre>
+    <pre>
+POST /add?apikey=YOUR_APIKEY&site=SITE_NAME&username=USERNAME&password=PASSWORD</pre
+    >
 
     <h2>View Passwords</h2>
     <pre>GET /view?name=YOUR_NAME&apikey=YOUR_APIKEY</pre>
@@ -24,6 +37,9 @@
     <h2>Delete All Passwords</h2>
     <pre>DELETE /delete?name=YOUR_NAME&apikey=YOUR_API_KEY</pre>
 
-    <p>Replace <code>YOUR_NAME</code>, <code>YOUR_APIKEY</code>, <code>SITE_NAME</code>, etc., accordingly.</p>
-</body>
+    <p>
+      Replace <code>YOUR_NAME</code>, <code>YOUR_APIKEY</code>,
+      <code>SITE_NAME</code>, etc., accordingly.
+    </p>
+  </body>
 </html>

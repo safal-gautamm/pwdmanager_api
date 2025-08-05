@@ -1,6 +1,5 @@
 #include "pwdmanager.h"
 
-// XOR key - keep this secret and consistent!
 const std::string encryptionKey = "MySecretXORKey";
 
 // Simple XOR encrypt/decrypt function (symmetric)
@@ -17,7 +16,7 @@ std::string xorCrypt(const std::string &input, const std::string &key)
 // Serve home page instructions
 void CreateController::home(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
-    auto resp = HttpResponse::newFileResponse("../index.html"); // ✅ same dir as JSON
+    auto resp = HttpResponse::newFileResponse("../index.html");
     callback(resp);
 }
 
@@ -48,7 +47,7 @@ Json::Value CreateController::loadData()
     return root;
 }
 
-// Save JSON data to file (pretty print)
+// Save JSON data to file
 void CreateController::saveData(const Json::Value &root)
 {
     std::ofstream file(dataFile);
@@ -93,6 +92,7 @@ void CreateController::create(const HttpRequestPtr &req, std::function<void(cons
         {
             Json::Value json;
             json["error"] = "User already exists";
+            json["status"] = 409;
             auto resp = HttpResponse::newHttpJsonResponse(json);
             resp->setStatusCode(k409Conflict);
             callback(resp);
@@ -106,6 +106,7 @@ void CreateController::create(const HttpRequestPtr &req, std::function<void(cons
     newUser["name"] = name;
     newUser["apikey"] = apikey;
     newUser["passwords"] = Json::Value(Json::arrayValue);
+    newUser["status"] = 200;
 
     users.append(newUser);
     saveData(root);
@@ -151,10 +152,19 @@ void CreateController::add(const HttpRequestPtr &req, std::function<void(const H
             {
                 if (entry["site"].asString() == site && entry["username"].asString() == username)
                 {
-                    entry["password"] = xorCrypt(password, encryptionKey);
                     siteExists = true;
                     break;
                 }
+            }
+            if(siteExists)
+            {
+                Json::Value json;
+                json["error"] = "User already exists";
+                json["status"] = 409;
+                auto resp = HttpResponse::newHttpJsonResponse(json);
+                resp->setStatusCode(k409Conflict);
+                callback(resp);
+                return;
             }
             if (!siteExists)
             {
@@ -174,6 +184,7 @@ void CreateController::add(const HttpRequestPtr &req, std::function<void(const H
     {
         Json::Value json;
         json["error"] = "Invalid API key";
+        json["status"] = 403;
         auto resp = HttpResponse::newHttpJsonResponse(json);
         resp->setStatusCode(k403Forbidden);
         callback(resp);
@@ -229,7 +240,6 @@ void CreateController::update(const HttpRequestPtr &req, std::function<void(cons
                         data["username"] = username;
                     if (!password.empty())
                         data["password"] = xorCrypt(password, encryptionKey);
-
                     sitefound = true;
                     siteUpdated = true;
                     break;
@@ -240,12 +250,12 @@ void CreateController::update(const HttpRequestPtr &req, std::function<void(cons
             {
                 Json::Value json;
                 json["error"] = "Site does not exist";
+                json["status"] = 404;
                 auto resp = HttpResponse::newHttpJsonResponse(json);
                 resp->setStatusCode(k404NotFound);
                 callback(resp);
                 return;
             }
-
             break;
         }
     }
@@ -254,6 +264,7 @@ void CreateController::update(const HttpRequestPtr &req, std::function<void(cons
     {
         Json::Value json;
         json["error"] = "User does not exist";
+        json["status"] = 404;
         auto resp = HttpResponse::newHttpJsonResponse(json);
         resp->setStatusCode(k404NotFound);
         callback(resp);
@@ -281,6 +292,7 @@ void CreateController::view(const HttpRequestPtr &req, std::function<void(const 
     {
         Json::Value json;
         json["error"] = "Missing required parameters";
+        json["status"] = 400;
         auto resp = HttpResponse::newHttpJsonResponse(json);
         resp->setStatusCode(k400BadRequest);
         callback(resp);
@@ -293,6 +305,7 @@ void CreateController::view(const HttpRequestPtr &req, std::function<void(const 
     {
         Json::Value json;
         json["error"] = "Invalid API key or user";
+        json["status"] = 403;
         auto resp = HttpResponse::newHttpJsonResponse(json);
         resp->setStatusCode(k403Forbidden);
         callback(resp);
@@ -322,6 +335,7 @@ void CreateController::view(const HttpRequestPtr &req, std::function<void(const 
 
     Json::Value json;
     json["error"] = "User not found";
+    json["status"] = 404;
     auto resp = HttpResponse::newHttpJsonResponse(json);
     resp->setStatusCode(k404NotFound);
     callback(resp);
@@ -338,6 +352,7 @@ void CreateController::deleteData(const HttpRequestPtr &req, std::function<void(
         Json::Value json;
         json["error"] = "Missing required parameters";
         auto resp = HttpResponse::newHttpJsonResponse(json);
+        json["status"] = 400;
         resp->setStatusCode(k400BadRequest);
         callback(resp);
         return;
@@ -349,6 +364,7 @@ void CreateController::deleteData(const HttpRequestPtr &req, std::function<void(
     {
         Json::Value json;
         json["error"] = "Invalid API key or user";
+        json["status"] = 403;
         auto resp = HttpResponse::newHttpJsonResponse(json);
         resp->setStatusCode(k403Forbidden);
         callback(resp);
@@ -371,6 +387,7 @@ void CreateController::deleteData(const HttpRequestPtr &req, std::function<void(
     {
         Json::Value json;
         json["error"] = "User not found";
+        json["status"] = 404;
         auto resp = HttpResponse::newHttpJsonResponse(json);
         resp->setStatusCode(k404NotFound);
         callback(resp);

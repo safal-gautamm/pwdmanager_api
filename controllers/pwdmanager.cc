@@ -106,14 +106,13 @@ void CreateController::create(const HttpRequestPtr &req, std::function<void(cons
     newUser["name"] = name;
     newUser["apikey"] = apikey;
     newUser["passwords"] = Json::Value(Json::arrayValue);
-    newUser["status"] = 200;
-
     users.append(newUser);
     saveData(root);
 
     Json::Value json;
     json["name"] = name;
     json["apikey"] = apikey;
+    json["status"] = 200;
 
     auto resp = HttpResponse::newHttpJsonResponse(json);
     callback(resp);

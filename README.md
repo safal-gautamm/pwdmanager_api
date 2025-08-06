@@ -111,3 +111,13 @@ curl -X DELETE "http://localhost:5555/delete?name=YOUR_NAME&apikey=YOUR_APIKEY"
 ```
 
 All data are stored on [`passwords.json`](./passwords.json) file.
+
+<!-- 
+Example:
+curl -X POST "http://localhost:5555/create?name=John"
+curl -X POST "http://localhost:5555/add?apikey=6892D151&site=github.com&username=john&password=12345"
+curl -X PUT "http://localhost:5555/update?apikey=6892D151&site=github.com&password=newpass"
+curl -X GET "http://localhost:5555/view?name=John&apikey=6892D151"
+curl -X GET "http://localhost:5555/view?name=John&apikey=6892D151"
+curl -X DELETE "http://localhost:5555/delete?name=John&apikey=6892D151"
+ -->

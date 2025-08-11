@@ -66,11 +66,11 @@ make
 If successful you will see:
 
 ```text
-============================================
-  Password Manager API is running!
-  Access it at:  http://localhost:5555/
-  Press Ctrl + C to stop the server.
-============================================
+|-----------------------------------------------|
+|               API is executed                 |
+|            http://localhost:5555/             |
+|      Press Ctrl + C to stop the server.       |
+|-----------------------------------------------|
 ```
 
 Then open browser at:

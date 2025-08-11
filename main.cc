@@ -7,11 +7,11 @@ int main()
     drogon::app().addListener("0.0.0.0", 5555);
 
     // Print StartUp message
-    std::cout << "============================================\n";
-    std::cout << "  Password Manager API is running!\n";
-    std::cout << "  Access it at:  http://localhost:5555/\n";
-    std::cout << "  Press Ctrl + C to stop the server.\n";
-    std::cout << "============================================\n";
+    std::cout << "|-----------------------------------------------|" << std::endl;
+    std::cout << "|               API is executed                 |" << std::endl;
+    std::cout << "|            http://localhost:5555/             |" << std::endl;
+    std::cout << "|      Press Ctrl + C to stop the server.       |" << std::endl;
+    std::cout << "|-----------------------------------------------|" << std::endl;
 
     drogon::app().run();
 
